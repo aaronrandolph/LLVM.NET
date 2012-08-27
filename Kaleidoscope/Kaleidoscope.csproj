@@ -43,10 +43,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Chapter3\Ast.cs" />
-    <Compile Include="Chapter3\CodeGenManager.cs" />
     <Compile Include="Chapter3\Lexer.cs" />
     <Compile Include="Chapter3\Parser.cs" />
+    <Compile Include="Chapter4\Lexer.cs" />
+    <Compile Include="Chapter4\Parser.cs" />
     <Compile Include="Chapter3\Driver.cs" />
+    <Compile Include="Chapter4\Ast.cs" />
+    <Compile Include="CodeGenManager.cs" />
+    <Compile Include="Chapter4\Driver.cs" />
+    <Compile Include="IDriver.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

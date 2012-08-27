@@ -139,7 +139,7 @@ public:
 
             OutputComment(fd, sstream, 8);
             sstream.indent(8) << "[DllImport(\"llvm-3.1.dll\", EntryPoint=\"" << fd->getName().str() << "\", CallingConvention=CallingConvention.Cdecl)]\n";
-            sstream.indent(8) << "public static extern " << ConvertType(fd->getResultType(), true) << " " << name.str() << "(";
+            sstream.indent(8) << "public static extern " << ConvertType(fd->getResultType(), true, false) << " " << name.str() << "(";
         
             std::string comma = "";
             for(auto j = fd->param_begin(); j != fd->param_end(); ++j)
@@ -148,7 +148,7 @@ public:
               if(name.size() == 0)
                 name = (*j)->getType().getAsString();
 
-              sstream << comma << ConvertType((*j)->getType(), false) << " " << name;
+              sstream << comma << ConvertType((*j)->getType(), false, (*j)->getName().startswith("Out")) << " " << name;
               comma = ", ";
             }
 
@@ -251,7 +251,7 @@ public:
       outFile.indent(4) << "}\n}";
     }
 
-    std::string ConvertType(clang::QualType type, bool isReturn)
+    std::string ConvertType(clang::QualType type, bool isReturn, bool outParam)
     {
       if(type->isVoidType())
       {
@@ -326,7 +326,7 @@ public:
         }
         else if(type->getPointeeType()->isPointerType() && type->getPointeeType()->getPointeeType()->isStructureOrClassType())
         {
-          return "System.IntPtr[]";
+          return outParam ? "ref " + type.getAsString() : "System.IntPtr[]";
         }
       }
 

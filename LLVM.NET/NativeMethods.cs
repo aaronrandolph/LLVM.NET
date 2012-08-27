@@ -1,6 +1,5 @@
 using System;
 using System.Runtime.InteropServices;
-
 using System.Text;
 
 namespace LLVM
@@ -369,27 +368,27 @@ namespace LLVM
         public static extern void ViewFunctionCFGOnly(LLVMValueRef* Fn);
 
         [DllImport("llvm-3.1.dll", EntryPoint="LLVMParseBitcode", CallingConvention=CallingConvention.Cdecl)]
-        public static extern int ParseBitcode(LLVMMemoryBufferRef* MemBuf, System.IntPtr[] OutModule, [MarshalAs(UnmanagedType.LPStr)] ref StringBuilder OutMessage);
+        public static extern int ParseBitcode(LLVMMemoryBufferRef* MemBuf, ref LLVMModuleRef * OutModule, [MarshalAs(UnmanagedType.LPStr)] ref StringBuilder OutMessage);
 
         [DllImport("llvm-3.1.dll", EntryPoint="LLVMParseBitcodeInContext", CallingConvention=CallingConvention.Cdecl)]
-        public static extern int ParseBitcodeInContext(LLVMContextRef* ContextRef, LLVMMemoryBufferRef* MemBuf, System.IntPtr[] OutModule, [MarshalAs(UnmanagedType.LPStr)] ref StringBuilder OutMessage);
+        public static extern int ParseBitcodeInContext(LLVMContextRef* ContextRef, LLVMMemoryBufferRef* MemBuf, ref LLVMModuleRef * OutModule, [MarshalAs(UnmanagedType.LPStr)] ref StringBuilder OutMessage);
 
         /* Reads a module from the specified path, returning via the OutMP parameter
             a module provider which performs lazy deserialization. Returns 0 on success.
             Optionally returns a human-readable error message via OutMessage.*/
         [DllImport("llvm-3.1.dll", EntryPoint="LLVMGetBitcodeModuleInContext", CallingConvention=CallingConvention.Cdecl)]
-        public static extern int GetBitcodeModuleInContext(LLVMContextRef* ContextRef, LLVMMemoryBufferRef* MemBuf, System.IntPtr[] OutM, [MarshalAs(UnmanagedType.LPStr)] ref StringBuilder OutMessage);
+        public static extern int GetBitcodeModuleInContext(LLVMContextRef* ContextRef, LLVMMemoryBufferRef* MemBuf, ref LLVMModuleRef * OutM, [MarshalAs(UnmanagedType.LPStr)] ref StringBuilder OutMessage);
 
         [DllImport("llvm-3.1.dll", EntryPoint="LLVMGetBitcodeModule", CallingConvention=CallingConvention.Cdecl)]
-        public static extern int GetBitcodeModule(LLVMMemoryBufferRef* MemBuf, System.IntPtr[] OutM, [MarshalAs(UnmanagedType.LPStr)] ref StringBuilder OutMessage);
+        public static extern int GetBitcodeModule(LLVMMemoryBufferRef* MemBuf, ref LLVMModuleRef * OutM, [MarshalAs(UnmanagedType.LPStr)] ref StringBuilder OutMessage);
 
         /* Deprecated: Use LLVMGetBitcodeModuleInContext instead.*/
         [DllImport("llvm-3.1.dll", EntryPoint="LLVMGetBitcodeModuleProviderInContext", CallingConvention=CallingConvention.Cdecl)]
-        public static extern int GetBitcodeModuleProviderInContext(LLVMContextRef* ContextRef, LLVMMemoryBufferRef* MemBuf, System.IntPtr[] OutMP, [MarshalAs(UnmanagedType.LPStr)] ref StringBuilder OutMessage);
+        public static extern int GetBitcodeModuleProviderInContext(LLVMContextRef* ContextRef, LLVMMemoryBufferRef* MemBuf, ref LLVMModuleProviderRef * OutMP, [MarshalAs(UnmanagedType.LPStr)] ref StringBuilder OutMessage);
 
         /* Deprecated: Use LLVMGetBitcodeModule instead.*/
         [DllImport("llvm-3.1.dll", EntryPoint="LLVMGetBitcodeModuleProvider", CallingConvention=CallingConvention.Cdecl)]
-        public static extern int GetBitcodeModuleProvider(LLVMMemoryBufferRef* MemBuf, System.IntPtr[] OutMP, [MarshalAs(UnmanagedType.LPStr)] ref StringBuilder OutMessage);
+        public static extern int GetBitcodeModuleProvider(LLVMMemoryBufferRef* MemBuf, ref LLVMModuleProviderRef * OutMP, [MarshalAs(UnmanagedType.LPStr)] ref StringBuilder OutMessage);
 
         /* @defgroup LLVMCBitWriter Bit Writer
          * @ingroup LLVMC
@@ -2737,10 +2736,10 @@ namespace LLVM
          *
          * @{*/
         [DllImport("llvm-3.1.dll", EntryPoint="LLVMCreateMemoryBufferWithContentsOfFile", CallingConvention=CallingConvention.Cdecl)]
-        public static extern int CreateMemoryBufferWithContentsOfFile([In][MarshalAs(UnmanagedType.LPStr)] string Path, System.IntPtr[] OutMemBuf, [MarshalAs(UnmanagedType.LPStr)] ref StringBuilder OutMessage);
+        public static extern int CreateMemoryBufferWithContentsOfFile([In][MarshalAs(UnmanagedType.LPStr)] string Path, ref LLVMMemoryBufferRef * OutMemBuf, [MarshalAs(UnmanagedType.LPStr)] ref StringBuilder OutMessage);
 
         [DllImport("llvm-3.1.dll", EntryPoint="LLVMCreateMemoryBufferWithSTDIN", CallingConvention=CallingConvention.Cdecl)]
-        public static extern int CreateMemoryBufferWithSTDIN(System.IntPtr[] OutMemBuf, [MarshalAs(UnmanagedType.LPStr)] ref StringBuilder OutMessage);
+        public static extern int CreateMemoryBufferWithSTDIN(ref LLVMMemoryBufferRef * OutMemBuf, [MarshalAs(UnmanagedType.LPStr)] ref StringBuilder OutMessage);
 
         [DllImport("llvm-3.1.dll", EntryPoint="LLVMDisposeMemoryBuffer", CallingConvention=CallingConvention.Cdecl)]
         public static extern void DisposeMemoryBuffer(LLVMMemoryBufferRef* MemBuf);
@@ -3017,25 +3016,25 @@ namespace LLVM
         public static extern void DisposeGenericValue(LLVMGenericValueRef* GenVal);
 
         [DllImport("llvm-3.1.dll", EntryPoint="LLVMCreateExecutionEngineForModule", CallingConvention=CallingConvention.Cdecl)]
-        public static extern int CreateExecutionEngineForModule(System.IntPtr[] OutEE, LLVMModuleRef* M, [MarshalAs(UnmanagedType.LPStr)] ref StringBuilder OutError);
+        public static extern int CreateExecutionEngineForModule(ref LLVMExecutionEngineRef * OutEE, LLVMModuleRef* M, [MarshalAs(UnmanagedType.LPStr)] ref StringBuilder OutError);
 
         [DllImport("llvm-3.1.dll", EntryPoint="LLVMCreateInterpreterForModule", CallingConvention=CallingConvention.Cdecl)]
-        public static extern int CreateInterpreterForModule(System.IntPtr[] OutInterp, LLVMModuleRef* M, [MarshalAs(UnmanagedType.LPStr)] ref StringBuilder OutError);
+        public static extern int CreateInterpreterForModule(ref LLVMExecutionEngineRef * OutInterp, LLVMModuleRef* M, [MarshalAs(UnmanagedType.LPStr)] ref StringBuilder OutError);
 
         [DllImport("llvm-3.1.dll", EntryPoint="LLVMCreateJITCompilerForModule", CallingConvention=CallingConvention.Cdecl)]
-        public static extern int CreateJITCompilerForModule(System.IntPtr[] OutJIT, LLVMModuleRef* M, uint OptLevel, [MarshalAs(UnmanagedType.LPStr)] ref StringBuilder OutError);
+        public static extern int CreateJITCompilerForModule(ref LLVMExecutionEngineRef * OutJIT, LLVMModuleRef* M, uint OptLevel, [MarshalAs(UnmanagedType.LPStr)] ref StringBuilder OutError);
 
         /* Deprecated: Use LLVMCreateExecutionEngineForModule instead.*/
         [DllImport("llvm-3.1.dll", EntryPoint="LLVMCreateExecutionEngine", CallingConvention=CallingConvention.Cdecl)]
-        public static extern int CreateExecutionEngine(System.IntPtr[] OutEE, LLVMModuleProviderRef* MP, [MarshalAs(UnmanagedType.LPStr)] ref StringBuilder OutError);
+        public static extern int CreateExecutionEngine(ref LLVMExecutionEngineRef * OutEE, LLVMModuleProviderRef* MP, [MarshalAs(UnmanagedType.LPStr)] ref StringBuilder OutError);
 
         /* Deprecated: Use LLVMCreateInterpreterForModule instead.*/
         [DllImport("llvm-3.1.dll", EntryPoint="LLVMCreateInterpreter", CallingConvention=CallingConvention.Cdecl)]
-        public static extern int CreateInterpreter(System.IntPtr[] OutInterp, LLVMModuleProviderRef* MP, [MarshalAs(UnmanagedType.LPStr)] ref StringBuilder OutError);
+        public static extern int CreateInterpreter(ref LLVMExecutionEngineRef * OutInterp, LLVMModuleProviderRef* MP, [MarshalAs(UnmanagedType.LPStr)] ref StringBuilder OutError);
 
         /* Deprecated: Use LLVMCreateJITCompilerForModule instead.*/
         [DllImport("llvm-3.1.dll", EntryPoint="LLVMCreateJITCompiler", CallingConvention=CallingConvention.Cdecl)]
-        public static extern int CreateJITCompiler(System.IntPtr[] OutJIT, LLVMModuleProviderRef* MP, uint OptLevel, [MarshalAs(UnmanagedType.LPStr)] ref StringBuilder OutError);
+        public static extern int CreateJITCompiler(ref LLVMExecutionEngineRef * OutJIT, LLVMModuleProviderRef* MP, uint OptLevel, [MarshalAs(UnmanagedType.LPStr)] ref StringBuilder OutError);
 
         [DllImport("llvm-3.1.dll", EntryPoint="LLVMDisposeExecutionEngine", CallingConvention=CallingConvention.Cdecl)]
         public static extern void DisposeExecutionEngine(LLVMExecutionEngineRef* EE);
@@ -3063,14 +3062,14 @@ namespace LLVM
         public static extern void AddModuleProvider(LLVMExecutionEngineRef* EE, LLVMModuleProviderRef* MP);
 
         [DllImport("llvm-3.1.dll", EntryPoint="LLVMRemoveModule", CallingConvention=CallingConvention.Cdecl)]
-        public static extern int RemoveModule(LLVMExecutionEngineRef* EE, LLVMModuleRef* M, System.IntPtr[] OutMod, [MarshalAs(UnmanagedType.LPStr)] ref StringBuilder OutError);
+        public static extern int RemoveModule(LLVMExecutionEngineRef* EE, LLVMModuleRef* M, ref LLVMModuleRef * OutMod, [MarshalAs(UnmanagedType.LPStr)] ref StringBuilder OutError);
 
         /* Deprecated: Use LLVMRemoveModule instead.*/
         [DllImport("llvm-3.1.dll", EntryPoint="LLVMRemoveModuleProvider", CallingConvention=CallingConvention.Cdecl)]
-        public static extern int RemoveModuleProvider(LLVMExecutionEngineRef* EE, LLVMModuleProviderRef* MP, System.IntPtr[] OutMod, [MarshalAs(UnmanagedType.LPStr)] ref StringBuilder OutError);
+        public static extern int RemoveModuleProvider(LLVMExecutionEngineRef* EE, LLVMModuleProviderRef* MP, ref LLVMModuleRef * OutMod, [MarshalAs(UnmanagedType.LPStr)] ref StringBuilder OutError);
 
         [DllImport("llvm-3.1.dll", EntryPoint="LLVMFindFunction", CallingConvention=CallingConvention.Cdecl)]
-        public static extern int FindFunction(LLVMExecutionEngineRef* EE, [In][MarshalAs(UnmanagedType.LPStr)] string Name, System.IntPtr[] OutFn);
+        public static extern int FindFunction(LLVMExecutionEngineRef* EE, [In][MarshalAs(UnmanagedType.LPStr)] string Name, ref LLVMValueRef * OutFn);
 
         [DllImport("llvm-3.1.dll", EntryPoint="LLVMRecompileAndRelinkFunction", CallingConvention=CallingConvention.Cdecl)]
         public static extern System.IntPtr RecompileAndRelinkFunction(LLVMExecutionEngineRef* EE, LLVMValueRef* Fn);

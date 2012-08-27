@@ -38,10 +38,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BasicBlock.cs" />
+    <Compile Include="ExecutionEngine.cs" />
+    <Compile Include="GenericValue.cs" />
     <Compile Include="Guard.cs" />
     <Compile Include="IRBuilder.cs" />
     <Compile Include="Function.cs" />
     <Compile Include="Module.cs" />
+    <Compile Include="PassManager.cs" />
+    <Compile Include="TargetData.cs" />
     <Compile Include="TypeRef.cs" />
     <Compile Include="Value.cs" />
     <Compile Include="NativeMethods.cs" />

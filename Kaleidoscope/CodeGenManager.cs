@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using LLVM;
 
-namespace Kaleidoscope.Chapter3
+namespace Kaleidoscope
 {
     static unsafe class CodeGenManager
     {

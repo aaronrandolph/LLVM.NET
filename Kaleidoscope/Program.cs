@@ -4,8 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Kaleidoscope.Chapter3;
-
 namespace Kaleidoscope
 {
     unsafe class Program
@@ -18,19 +16,10 @@ namespace Kaleidoscope
             LLVM.Native.InitializeX86Target();
             LLVM.Native.InitializeX86TargetMC();
 
-            Lexer lexer = new Lexer(Console.In);
-            Parser parser = new Parser(lexer);
-            using(LLVM.Module module = new LLVM.Module("my cool jit"))
-            {
-                CodeGenManager.Module = module;
-                Driver driver = new Driver(parser);
+            IDriver driver = new Kaleidoscope.Chapter4.Driver();
+            driver.Run();
 
-                driver.MainLoop();
-
-                Console.WriteLine("Module:");
-                CodeGenManager.Module.Dump();
-                Console.ReadLine();
-            }
+            Console.ReadLine();
         }
     }
 }
