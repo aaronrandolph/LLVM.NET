@@ -10,7 +10,7 @@ namespace Kaleidoscope.Chapter3
     /// ExprAST - Base class for all expression nodes.
     abstract class ExprAST
     {
-        public abstract Value CodeGen();
+        public abstract Value CodeGen(IRBuilder builder);
     }
 
     /// NumberExprAST - Expression class for numeric literals like "1.0".
@@ -23,7 +23,7 @@ namespace Kaleidoscope.Chapter3
             this.Val = val;
         }
 
-        public override Value CodeGen()
+        public override Value CodeGen(IRBuilder builder)
         {
             return Value.CreateConstReal(TypeRef.CreateDouble(), this.Val);
         }
@@ -39,7 +39,7 @@ namespace Kaleidoscope.Chapter3
             this.Name = name;
         }
 
-        public override Value CodeGen()
+        public override Value CodeGen(IRBuilder builder)
         {
             Value value = null;
 
@@ -64,23 +64,23 @@ namespace Kaleidoscope.Chapter3
             this.RHS = rhs;
         }
 
-        public override Value CodeGen()
+        public override Value CodeGen(IRBuilder builder)
         {
-            Value l = this.LHS.CodeGen();
-            Value r = this.RHS.CodeGen();
+            Value l = this.LHS.CodeGen(builder);
+            Value r = this.RHS.CodeGen(builder);
             if(l == null || r == null) return null;
 
             switch(this.Op)
             {
                 case '+':
-                    return CodeGenManager.Builder.CreateFAdd(l, r);
+                    return builder.CreateFAdd(l, r);
                 case '-':
-                    return CodeGenManager.Builder.CreateFSub(l, r);
+                    return builder.CreateFSub(l, r);
                 case '*':
-                    return CodeGenManager.Builder.CreateFMul(l, r);
+                    return builder.CreateFMul(l, r);
                 case '<':
                     // Convert bool 0/1 to double 0.0 or 1.0
-                    return CodeGenManager.Builder.CreateFCmpAndPromote(l, LLVMRealPredicate.RealULT, r, TypeRef.CreateDouble());
+                    return builder.CreateFCmpAndPromote(l, LLVMRealPredicate.RealULT, r, TypeRef.CreateDouble());
             }
 
             CodeGenManager.ErrorOutput.WriteLine("Unknown binary operator.");
@@ -100,7 +100,7 @@ namespace Kaleidoscope.Chapter3
             this.Args = new List<ExprAST>(args);
         }
 
-        public override Value CodeGen()
+        public override Value CodeGen(IRBuilder builder)
         {
             // Look up the name in the global module table.
             Function func = CodeGenManager.Module.GetFunction(this.Callee);
@@ -120,14 +120,14 @@ namespace Kaleidoscope.Chapter3
             List<Value> args = new List<Value>();
             foreach(var arg in this.Args)
             {
-                Value val = arg.CodeGen();
+                Value val = arg.CodeGen(builder);
                 if(val == null)
                     return null;
 
                 args.Add(val);
             }
 
-            return CodeGenManager.Builder.CreateCall(func, args.ToArray());
+            return builder.CreateCall(func, args.ToArray());
         }
     }
 
@@ -145,7 +145,7 @@ namespace Kaleidoscope.Chapter3
             this.Args = new List<string>(args);
         }
 
-        public Function CodeGen()
+        public Function CodeGen(IRBuilder builder)
         {
             List<TypeRef> args = new List<TypeRef>();
             this.Args.ForEach(a => args.Add(TypeRef.CreateDouble()));
@@ -201,21 +201,21 @@ namespace Kaleidoscope.Chapter3
             this.Body = body;
         }
 
-        public Function CodeGen()
+        public Function CodeGen(IRBuilder builder)
         {
             CodeGenManager.NamedValues.Clear();
-            Function func = this.Proto.CodeGen();
+            Function func = this.Proto.CodeGen(builder);
             if(func == null)
                 return null;
 
             // Create a new basic block to start insertion into.
             BasicBlock bb = func.AppendBasicBlock("entry");
-            CodeGenManager.Builder.SetInsertPoint(bb);
-            Value retVal = Body.CodeGen();
+            builder.SetInsertPoint(bb);
+            Value retVal = Body.CodeGen(builder);
 
             if(retVal != null)
             {
-                CodeGenManager.Builder.CreateReturn(retVal);
+                builder.CreateReturn(retVal);
 
                 // Validate the generated code, checking for consistency.
                 func.Validate();

@@ -33,7 +33,7 @@ namespace LLVM
             if(func == null)
                 return null;
 
-            return new Function(this, name, func);
+            return new Function(name, func);
         }
 
         public void Dump()

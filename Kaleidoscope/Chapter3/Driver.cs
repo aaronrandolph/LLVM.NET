@@ -12,11 +12,13 @@ namespace Kaleidoscope.Chapter3
     class Driver
     {
         private Parser m_parser;
+        private LLVM.IRBuilder m_builder;
 
         public Driver(Parser parser)
-	    {
+        {
             m_parser = parser;
-	    }
+            m_builder = new LLVM.IRBuilder();
+        }
 
         internal void MainLoop()
         {
@@ -51,7 +53,7 @@ namespace Kaleidoscope.Chapter3
             FunctionAST f = m_parser.ParseDefinition();
             if(f != null)
             {
-                LLVM.Function func = f.CodeGen();
+                LLVM.Function func = f.CodeGen(m_builder);
                 if(func != null)
                 {
                     Console.WriteLine("Read function definition:");
@@ -67,7 +69,7 @@ namespace Kaleidoscope.Chapter3
             FunctionAST f = m_parser.ParseTopLevelExpr();
             if(f != null)
             {
-                LLVM.Function func = f.CodeGen();
+                LLVM.Function func = f.CodeGen(m_builder);
                 if(func != null)
                 {
                     Console.WriteLine("Read top-level expression:");

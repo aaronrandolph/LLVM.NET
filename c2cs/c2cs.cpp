@@ -55,7 +55,7 @@ public:
     MyASTConsumer(llvm::raw_ostream& output) : clang::ASTConsumer(), outFile(output)
     {
       outFile << "using System;\n";
-      outFile << "using System.Runtime.InteropServices;\n\n";
+      outFile << "using System.Runtime.InteropServices;\n";
       outFile << "using System.Text;\n\n";
       outFile << "namespace LLVM\n{";
     }

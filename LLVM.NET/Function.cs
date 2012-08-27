@@ -27,7 +27,7 @@ namespace LLVM
             m_handle = Native.AddFunction(module.Handle, name, m_funcType);
         }
 
-        public Function(Module module, string name, LLVMValueRef* handle)
+        public Function(string name, LLVMValueRef* handle)
         {
 
             m_name = name;

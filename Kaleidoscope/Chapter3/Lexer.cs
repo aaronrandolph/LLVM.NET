@@ -108,7 +108,7 @@ namespace Kaleidoscope.Chapter3
             if(ch == '#')
             {
                 // Comment until end of line.
-                m_position = m_line.Length - 1;
+                m_position = m_line.Length;
                 return GetToken();
             }
 
