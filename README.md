@@ -12,7 +12,7 @@ This has only been tested on Windows so far, but I've tried to make it easy to u
 c2cs
 ====
 
-A C++ command line application for converting llvm-c header files to C#.  This tool uses clang's front end to parse the llvm-c headers and the uses the resulting AST to convert enums, typedefs, and function declarations to C#.  This uses the latest version of clangso comments can be copied to the output as well. I believe this could be easily modified to convert any header files, but right now it's specific to LLVM.  
+A C++ command line application for converting llvm-c header files to C#.  This tool uses clang's front end to parse the llvm-c headers and then uses the resulting AST to convert enums, typedefs, and function declarations to C#.  This uses the latest version of clang so comments can be copied to the output as well. I believe this could be easily modified to convert any header files, but right now it's specific to LLVM.  
 
 This tool uses hardcoded paths for the output file and clang include directories.  It should be simple to change these to command line arguments.  The paths are all defined at the top of c2cs.cpp.
 
