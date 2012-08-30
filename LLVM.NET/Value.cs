@@ -5,7 +5,7 @@ using System.Text;
 
 namespace LLVM
 {
-    public unsafe class Value
+    public unsafe class Value : IPointerWrapper
     {
         private readonly LLVMValueRef* m_handle;
 
@@ -45,14 +45,63 @@ namespace LLVM
             return new Value(Native.ConstInt(type.Handle, (ulong)value, 1));
         }
 
+        public static Value CreateConstInt16(short value)
+        {
+            return new Value(Native.ConstInt(TypeRef.CreateInt16().Handle, (ulong)value, 1));
+        }
+
+        public static Value CreateConstInt32(int value)
+        {
+            return new Value(Native.ConstInt(TypeRef.CreateInt32().Handle, (ulong)value, 1));
+        }
+
+        public static Value CreateConstInt64(long value)
+        {
+            return new Value(Native.ConstInt(TypeRef.CreateInt64().Handle, (ulong)value, 1));
+        }
+
         public static Value CreateConstUInt(TypeRef type, ulong value)
         {
             return new Value(Native.ConstInt(type.Handle, value, 0));
+        }
+
+        public static Value CreateConstUInt16(ushort value)
+        {
+            return new Value(Native.ConstInt(TypeRef.CreateInt16().Handle, value, 0));
+        }
+
+        public static Value CreateConstUInt32(uint value)
+        {
+            return new Value(Native.ConstInt(TypeRef.CreateInt32().Handle, value, 0));
+        }
+
+        public static Value CreateConstUInt64(ulong value)
+        {
+            return new Value(Native.ConstInt(TypeRef.CreateInt64().Handle, value, 0));
         }
 
         public static Value CreateConstReal(TypeRef type, double value)
         {
             return new Value(Native.ConstReal(type.Handle, value));
         }
+
+        public static Value CreateConstDouble(double value)
+        {
+            return new Value(Native.ConstReal(TypeRef.CreateDouble().Handle, value));
+        }
+
+        public static Value CreateConstFloat(float value)
+        {
+            return new Value(Native.ConstReal(TypeRef.CreateFloat().Handle, value));
+        }
+
+        #region IPointerWrapper Members
+
+        IntPtr IPointerWrapper.NativePointer
+        {
+            get { return (IntPtr)m_handle; }
+        }
+
+        #endregion
     }
 }

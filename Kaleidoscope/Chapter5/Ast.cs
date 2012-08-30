@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using LLVM;
 
-namespace Kaleidoscope.Chapter4
+namespace Kaleidoscope.Chapter5
 {
     /// ExprAST - Base class for all expression nodes.
     abstract class ExprAST
@@ -80,7 +80,8 @@ namespace Kaleidoscope.Chapter4
                     return builder.BuildFMul(l, r);
                 case '<':
                     // Convert bool 0/1 to double 0.0 or 1.0
-                    return builder.BuildFCmpAndPromote(l, LLVMRealPredicate.RealULT, r, TypeRef.CreateDouble());
+                    return builder.BuildFCmpAndPromote(l, LLVMRealPredicate.RealULT, 
+                                                       r, TypeRef.CreateDouble());
             }
 
             CodeGenManager.ErrorOutput.WriteLine("Unknown binary operator.");
@@ -128,6 +129,64 @@ namespace Kaleidoscope.Chapter4
             }
 
             return builder.BuildCall(func, args.ToArray());
+        }
+    }
+
+    /// IfExprAST - Expression class for if/then/else.
+    class IfExprAST : ExprAST
+    {
+        public ExprAST Cond { get; set; }
+        public ExprAST Then { get; set; }
+        public ExprAST Else { get; set; }
+
+        public IfExprAST(ExprAST condExpr, ExprAST thenExpr, ExprAST elseExpr)
+        {
+            this.Cond = condExpr;
+            this.Then = thenExpr;
+            this.Else = elseExpr;
+        }
+
+        public override Value CodeGen(IRBuilder builder)
+        {
+            Value condV = this.Cond.CodeGen(builder);
+            if(condV == null) return null;
+
+            condV = builder.BuildFCmp(condV, LLVMRealPredicate.RealONE, 
+                                      Value.CreateConstDouble(0));
+            
+            Function func = builder.GetInsertPoint().GetParent();
+            BasicBlock thenBB = func.AppendBasicBlock("then");
+            BasicBlock elseBB = new BasicBlock("else");
+            BasicBlock mergeBB = new BasicBlock("ifcont");
+
+            builder.BuildCondBr(condV, thenBB, elseBB);
+            builder.SetInsertPoint(thenBB);
+
+            Value thenV = this.Then.CodeGen(builder);
+            if(thenV == null) return null;
+
+            builder.BuildBr(mergeBB);
+            // Codegen of 'Then' can change the current block, update ThenBB for the PHI.
+            thenBB = builder.GetInsertPoint();
+
+            // Emit else block
+            func.AppendBasicBlock(elseBB);
+            builder.SetInsertPoint(elseBB);
+
+            Value elseV = this.Else.CodeGen(builder);
+            if(elseV == null) return null;
+
+            builder.BuildBr(mergeBB);
+            // Codegen of 'Else' can change the current block, update ElseBB for the PHI.
+            elseBB = builder.GetInsertPoint();
+
+            // Emit merge block
+            func.AppendBasicBlock(mergeBB);
+            builder.SetInsertPoint(mergeBB);
+
+            return builder.BuildPHI(TypeRef.CreateDouble(), "iftmp", 
+                                    new Value[] { thenV, elseV }, 
+                                    new BasicBlock[] { thenBB, elseBB });
         }
     }
 

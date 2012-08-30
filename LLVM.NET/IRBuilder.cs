@@ -14,51 +14,76 @@ namespace LLVM
             m_builder = Native.CreateBuilder();
         }
 
-        public Value CreateFAdd(Value lhs, Value rhs)
+        public Value BuildFAdd(Value lhs, Value rhs)
         {
             return new Value(Native.BuildFAdd(m_builder, lhs.Handle, rhs.Handle, "addtmp"));
         }
 
-        public Value CreateFSub(Value lhs, Value rhs)
+        public Value BuildFSub(Value lhs, Value rhs)
         {
             return new Value(Native.BuildFSub(m_builder, lhs.Handle, rhs.Handle, "subtmp"));
         }
 
-        public Value CreateFMul(Value lhs, Value rhs)
+        public Value BuildFMul(Value lhs, Value rhs)
         {
             return new Value(Native.BuildFMul(m_builder, lhs.Handle, rhs.Handle, "multmp"));
         }
 
-        public Value CreateFCmp(Value lhs, LLVMRealPredicate predicate, Value rhs)
+        public Value BuildFCmp(Value lhs, LLVMRealPredicate predicate, Value rhs)
         {
             return new Value(Native.BuildFCmp(m_builder, predicate, lhs.Handle, rhs.Handle, "cmptmp"));
         }
 
-        public Value CreateFCmpAndPromote(Value lhs, LLVMRealPredicate predicate, Value rhs, TypeRef promoteType)
+        public Value BuildFCmpAndPromote(Value lhs, LLVMRealPredicate predicate, Value rhs, TypeRef promoteType)
         {
-            lhs = CreateFCmp(lhs, predicate, rhs);
+            lhs = BuildFCmp(lhs, predicate, rhs);
             return new Value(Native.BuildUIToFP(m_builder, lhs.Handle, promoteType.Handle, "promotetmp")); 
         }
 
-        public Value CreateCall(Function func, Value[] args)
+        public Value BuildCondBr(Value ifVal, BasicBlock thenBlock, BasicBlock elseBlock)
         {
-            IntPtr[] argVals = new IntPtr[args.Length];
-            for(int i = 0; i < args.Length; ++i)
-            {
-                argVals[i] = (IntPtr)args[i].Handle;
-            }
+            return new Value(Native.BuildCondBr(m_builder, ifVal.Handle, thenBlock.Handle, elseBlock.Handle));
+        }
+
+        public Value BuildBr(BasicBlock branchBlock)
+        {
+            return new Value(Native.BuildBr(m_builder, branchBlock.Handle));
+        }
+
+        public Value BuildCall(Function func, Value[] args)
+        {
+            IntPtr[] argVals = LLVMUtilities.MarshallPointerArray(args);
 
             return new Value(Native.BuildCall(m_builder, func.Handle, argVals, (uint)args.Length, "calltmp"));
         }
 
-        public Value CreateReturn(Value returnValue)
+        public Value BuildReturn(Value returnValue)
         {
             return new Value(Native.BuildRet(m_builder, returnValue.Handle));
+        }
+
+        public Value BuildPHI(TypeRef type, string name, Value[] incomingValues, BasicBlock[] incomingBlocks)
+        {
+            if(incomingValues.Length != incomingBlocks.Length)
+                throw new InvalidOperationException("Incoming values and blocks must be the same size.");
+
+            IntPtr[] valPointers = LLVMUtilities.MarshallPointerArray(incomingValues);
+            IntPtr[] blockPointers = LLVMUtilities.MarshallPointerArray(incomingBlocks);
+
+            LLVMValueRef* phi = Native.BuildPhi(m_builder, type.Handle, name);
+            Native.AddIncoming(phi, valPointers, blockPointers, (uint)valPointers.Length);
+
+            return new Value(phi);
         }
 
         public void SetInsertPoint(BasicBlock bb)
         {
             Native.PositionBuilderAtEnd(m_builder, bb.Handle);
+        }
+
+        public BasicBlock GetInsertPoint()
+        {
+            return new BasicBlock(Native.GetInsertBlock(m_builder), null);
         }
     }
 }

@@ -49,6 +49,10 @@
     <Compile Include="Chapter4\Parser.cs" />
     <Compile Include="Chapter3\Driver.cs" />
     <Compile Include="Chapter4\Ast.cs" />
+    <Compile Include="Chapter5\Ast.cs" />
+    <Compile Include="Chapter5\Driver.cs" />
+    <Compile Include="Chapter5\Lexer.cs" />
+    <Compile Include="Chapter5\Parser.cs" />
     <Compile Include="CodeGenManager.cs" />
     <Compile Include="Chapter4\Driver.cs" />
     <Compile Include="IDriver.cs" />

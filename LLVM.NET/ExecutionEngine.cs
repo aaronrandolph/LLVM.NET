@@ -5,7 +5,7 @@ using System.Text;
 
 namespace LLVM
 {
-    public unsafe class ExecutionEngine : IDisposable
+    public unsafe class ExecutionEngine : IDisposable, IPointerWrapper
     {
         private LLVMExecutionEngineRef* m_handle;
 
@@ -55,6 +55,15 @@ namespace LLVM
                 Native.DisposeExecutionEngine(m_handle);
                 m_handle = null;
             }
+        }
+
+        #endregion
+
+        #region IPointerWrapper Members
+
+        IntPtr IPointerWrapper.NativePointer
+        {
+            get { return (IntPtr)m_handle; }
         }
 
         #endregion

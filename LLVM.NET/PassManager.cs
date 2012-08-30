@@ -5,7 +5,7 @@ using System.Text;
 
 namespace LLVM
 {
-    public unsafe class PassManager : IDisposable
+    public unsafe class PassManager : IDisposable, IPointerWrapper
     {
         private LLVMPassManagerRef* m_handle;
         private readonly LLVMModuleRef* m_module;
@@ -288,6 +288,15 @@ namespace LLVM
                 Native.DisposePassManager(m_handle);
                 m_handle = null;
             }
+        }
+
+        #endregion
+
+        #region IPointerWrapper Members
+
+        IntPtr IPointerWrapper.NativePointer
+        {
+            get { return (IntPtr)m_handle; }
         }
 
         #endregion

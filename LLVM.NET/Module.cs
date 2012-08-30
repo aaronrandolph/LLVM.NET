@@ -6,7 +6,7 @@ using Microsoft.Win32.SafeHandles;
 
 namespace LLVM
 {
-    public unsafe class Module : IDisposable
+    public unsafe class Module : IDisposable, IPointerWrapper
     {
         private LLVMModuleRef* m_handle;
 
@@ -56,6 +56,15 @@ namespace LLVM
                 Native.DisposeModule(m_handle);
                 m_handle = null;
             }
+        }
+
+        #endregion
+
+        #region IPointerWrapper Members
+
+        IntPtr IPointerWrapper.NativePointer
+        {
+            get { return (IntPtr)m_handle; }
         }
 
         #endregion

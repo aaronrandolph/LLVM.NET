@@ -5,7 +5,7 @@ using System.Text;
 
 namespace LLVM
 {
-    public unsafe class TargetData : IDisposable
+    public unsafe class TargetData : IDisposable, IPointerWrapper
     {
         private LLVMTargetDataRef* m_handle;
         private bool m_bNeedsDisposing;
@@ -41,6 +41,15 @@ namespace LLVM
                 Native.DisposeTargetData(m_handle);
                 m_handle = null;
             }
+        }
+
+        #endregion
+
+        #region IPointerWrapper Members
+
+        IntPtr IPointerWrapper.NativePointer
+        {
+            get { return (IntPtr)m_handle; }
         }
 
         #endregion

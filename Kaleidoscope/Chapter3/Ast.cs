@@ -73,14 +73,14 @@ namespace Kaleidoscope.Chapter3
             switch(this.Op)
             {
                 case '+':
-                    return builder.CreateFAdd(l, r);
+                    return builder.BuildFAdd(l, r);
                 case '-':
-                    return builder.CreateFSub(l, r);
+                    return builder.BuildFSub(l, r);
                 case '*':
-                    return builder.CreateFMul(l, r);
+                    return builder.BuildFMul(l, r);
                 case '<':
                     // Convert bool 0/1 to double 0.0 or 1.0
-                    return builder.CreateFCmpAndPromote(l, LLVMRealPredicate.RealULT, r, TypeRef.CreateDouble());
+                    return builder.BuildFCmpAndPromote(l, LLVMRealPredicate.RealULT, r, TypeRef.CreateDouble());
             }
 
             CodeGenManager.ErrorOutput.WriteLine("Unknown binary operator.");
@@ -127,7 +127,7 @@ namespace Kaleidoscope.Chapter3
                 args.Add(val);
             }
 
-            return builder.CreateCall(func, args.ToArray());
+            return builder.BuildCall(func, args.ToArray());
         }
     }
 
@@ -215,7 +215,7 @@ namespace Kaleidoscope.Chapter3
 
             if(retVal != null)
             {
-                builder.CreateReturn(retVal);
+                builder.BuildReturn(retVal);
 
                 // Validate the generated code, checking for consistency.
                 func.Validate();

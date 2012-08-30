@@ -5,7 +5,7 @@ using System.Text;
 
 namespace LLVM
 {
-    public unsafe class Function
+    public unsafe class Function : IPointerWrapper
     {
         private readonly LLVMTypeRef* m_funcType;
         private readonly LLVMValueRef* m_handle;
@@ -19,17 +19,19 @@ namespace LLVM
             m_returnType = returnType;
             m_paramTypes = paramTypes;
 
-            IntPtr[] paramArray = new IntPtr[paramTypes.Length];
-            for(int i = 0; i < paramTypes.Length; ++i)
-                paramArray[i] = (IntPtr)paramTypes[i].Handle;
+            IntPtr[] paramArray = LLVMUtilities.MarshallPointerArray(paramTypes);
 
             m_funcType = Native.FunctionType(returnType.Handle, paramArray, (uint)paramArray.Length, 0);
             m_handle = Native.AddFunction(module.Handle, name, m_funcType);
         }
 
+        public Function(LLVMValueRef* handle)
+            : this(Value.GetName(handle), handle)
+        {
+        }
+
         public Function(string name, LLVMValueRef* handle)
         {
-
             m_name = name;
             m_handle = handle;
             m_funcType = Native.GetElementType(Native.TypeOf(handle));
@@ -100,7 +102,13 @@ namespace LLVM
 
         public BasicBlock AppendBasicBlock(string name)
         {
-            return new BasicBlock(Native.AppendBasicBlock(m_handle, name));
+            return new BasicBlock(name, this);
+        }
+
+        public BasicBlock AppendBasicBlock(BasicBlock block)
+        {
+            Native.MoveBasicBlockAfter(block.Handle, Native.GetLastBasicBlock(m_handle));
+            return block;
         }
 
         public bool Validate()
@@ -112,5 +120,14 @@ namespace LLVM
         {
             Native.DumpValue(m_handle);
         }
+
+        #region IPointerWrapper Members
+
+        IntPtr IPointerWrapper.NativePointer
+        {
+            get { return (IntPtr)m_handle; }
+        }
+
+        #endregion
     }
 }

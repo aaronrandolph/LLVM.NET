@@ -5,7 +5,7 @@ using System.Text;
 
 namespace LLVM
 {
-    public unsafe class GenericValue : IDisposable
+    public unsafe class GenericValue : IDisposable, IPointerWrapper
     {
         private LLVMGenericValueRef* m_handle;
 
@@ -54,6 +54,15 @@ namespace LLVM
                 Native.DisposeGenericValue(m_handle);
                 m_handle = null;
             }
+        }
+
+        #endregion
+
+        #region IPointerWrapper Members
+
+        IntPtr IPointerWrapper.NativePointer
+        {
+            get { return (IntPtr)m_handle; }
         }
 
         #endregion

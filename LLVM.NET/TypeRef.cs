@@ -5,7 +5,7 @@ using System.Text;
 
 namespace LLVM
 {
-    public unsafe class TypeRef
+    public unsafe class TypeRef : IPointerWrapper
     {
         private readonly LLVMTypeRef* m_handle;
 
@@ -56,5 +56,14 @@ namespace LLVM
         {
             return new TypeRef(Native.DoubleType());
         }
+
+        #region IPointerWrapper Members
+
+        IntPtr IPointerWrapper.NativePointer
+        {
+            get { return (IntPtr)m_handle; }
+        }
+
+        #endregion
     }
 }
