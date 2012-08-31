@@ -82,6 +82,27 @@ namespace LLVM
             return new Value(Native.BuildCall(m_builder, func.Handle, argVals, (uint)args.Length, varName));
         }
 
+        public Value BuildLoad(Value value, string varName)
+        {
+            return new Value(Native.BuildLoad(m_builder, value.Handle, varName));
+        }
+
+        public Value BuildStore(Value src, Value dest)
+        {
+            return new Value(Native.BuildStore(m_builder, src.Handle, dest.Handle));
+        }
+
+        public Value BuildEntryBlockAlloca(Function function, TypeRef type, string varName)
+        {
+            LLVMBasicBlockRef* block = Native.GetInsertBlock(m_builder);
+            LLVMBasicBlockRef* entry = Native.GetEntryBasicBlock(function.Handle);
+            Native.PositionBuilderAtEnd(m_builder, entry);
+            LLVMValueRef* alloca = Native.BuildAlloca(m_builder, type.Handle, varName);
+            Native.PositionBuilderAtEnd(m_builder, block);
+
+            return new Value(alloca);
+        }
+
         public Value BuildReturn(Value returnValue)
         {
             return new Value(Native.BuildRet(m_builder, returnValue.Handle));

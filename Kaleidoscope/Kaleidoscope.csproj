@@ -57,6 +57,10 @@
     <Compile Include="Chapter6\Driver.cs" />
     <Compile Include="Chapter6\Lexer.cs" />
     <Compile Include="Chapter6\Parser.cs" />
+    <Compile Include="Chapter7\Ast.cs" />
+    <Compile Include="Chapter7\Driver.cs" />
+    <Compile Include="Chapter7\Lexer.cs" />
+    <Compile Include="Chapter7\Parser.cs" />
     <Compile Include="CodeGenManager.cs" />
     <Compile Include="Chapter4\Driver.cs" />
     <Compile Include="IDriver.cs" />
@@ -72,6 +76,7 @@
       <Name>LLVM.NET</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
