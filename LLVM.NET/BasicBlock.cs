@@ -10,7 +10,7 @@ namespace LLVM
         private readonly LLVMBasicBlockRef* m_handle;
         private readonly string m_name;
 
-        public BasicBlock(LLVMBasicBlockRef* handle, string name)
+        public BasicBlock(string name, LLVMBasicBlockRef* handle)
         {
             if(handle == null)
                 throw new ArgumentNullException("handle");
@@ -22,19 +22,12 @@ namespace LLVM
             m_name = name;
         }
 
-        public BasicBlock(string name)
-        {
-            Guard.ArgumentNull(name, "name");
-
-            m_handle = Native.AppendBasicBlock(null, name);
-            m_name = name;
-        }
-
         public BasicBlock(string name, Function function)
         {
             Guard.ArgumentNull(name, "name");
+            Guard.ArgumentNull(function, "function");
 
-            m_handle = Native.AppendBasicBlock(function != null ? function.Handle : null, name);
+            m_handle = Native.AppendBasicBlock(function.Handle, name);
             m_name = name;
         }
 

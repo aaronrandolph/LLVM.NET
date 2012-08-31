@@ -83,7 +83,7 @@ namespace LLVM
 
         public BasicBlock GetInsertPoint()
         {
-            return new BasicBlock(Native.GetInsertBlock(m_builder), null);
+            return new BasicBlock(null, Native.GetInsertBlock(m_builder));
         }
     }
 }

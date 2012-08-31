@@ -154,39 +154,52 @@ namespace Kaleidoscope.Chapter5
             condV = builder.BuildFCmp(condV, LLVMRealPredicate.RealONE, 
                                       Value.CreateConstDouble(0));
             
-            Function func = builder.GetInsertPoint().GetParent();
-            BasicBlock thenBB = func.AppendBasicBlock("then");
-            BasicBlock elseBB = new BasicBlock("else");
-            BasicBlock mergeBB = new BasicBlock("ifcont");
+            BasicBlock startBlock = builder.GetInsertPoint();
+            Function func = startBlock.GetParent();
 
-            builder.BuildCondBr(condV, thenBB, elseBB);
+            BasicBlock thenBB = func.AppendBasicBlock("then");
             builder.SetInsertPoint(thenBB);
 
             Value thenV = this.Then.CodeGen(builder);
             if(thenV == null) return null;
-
-            builder.BuildBr(mergeBB);
-            // Codegen of 'Then' can change the current block, update ThenBB for the PHI.
-            thenBB = builder.GetInsertPoint();
+      
+            /* Codegen of 'then' can change the current block, update then_bb for the
+            * phi. We create a new name because one is used for the phi node, and the
+            * other is used for the conditional branch. */
+            BasicBlock newThenBB = builder.GetInsertPoint();
 
             // Emit else block
+            BasicBlock elseBB = func.AppendBasicBlock("else");
             func.AppendBasicBlock(elseBB);
             builder.SetInsertPoint(elseBB);
 
             Value elseV = this.Else.CodeGen(builder);
             if(elseV == null) return null;
 
-            builder.BuildBr(mergeBB);
             // Codegen of 'Else' can change the current block, update ElseBB for the PHI.
-            elseBB = builder.GetInsertPoint();
+            BasicBlock newElseBB = builder.GetInsertPoint();
 
             // Emit merge block
+            BasicBlock mergeBB = func.AppendBasicBlock("ifcont");
             func.AppendBasicBlock(mergeBB);
             builder.SetInsertPoint(mergeBB);
 
-            return builder.BuildPHI(TypeRef.CreateDouble(), "iftmp", 
+            Value phi = builder.BuildPHI(TypeRef.CreateDouble(), "iftmp", 
                                     new Value[] { thenV, elseV }, 
-                                    new BasicBlock[] { thenBB, elseBB });
+                                    new BasicBlock[] { newThenBB, newElseBB });
+
+            builder.SetInsertPoint(startBlock);
+            builder.BuildCondBr(condV, thenBB, elseBB);
+
+            builder.SetInsertPoint(thenBB);
+            builder.BuildBr(mergeBB);
+
+            builder.SetInsertPoint(elseBB);
+            builder.BuildBr(mergeBB);
+
+            builder.SetInsertPoint(mergeBB);
+
+            return phi;
         }
     }
 
