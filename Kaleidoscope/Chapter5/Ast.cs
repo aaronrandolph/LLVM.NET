@@ -184,9 +184,10 @@ namespace Kaleidoscope.Chapter5
             func.AppendBasicBlock(mergeBB);
             builder.SetInsertPoint(mergeBB);
 
-            Value phi = builder.BuildPHI(TypeRef.CreateDouble(), "iftmp", 
-                                    new Value[] { thenV, elseV }, 
-                                    new BasicBlock[] { newThenBB, newElseBB });
+            PhiIncoming incoming = new PhiIncoming();
+            incoming.Add(thenV, thenBB);
+            incoming.Add(elseV, elseBB);
+            Value phi = builder.BuildPhi(TypeRef.CreateDouble(), "iftmp", incoming);
 
             builder.SetInsertPoint(startBlock);
             builder.BuildCondBr(condV, thenBB, elseBB);
@@ -200,6 +201,78 @@ namespace Kaleidoscope.Chapter5
             builder.SetInsertPoint(mergeBB);
 
             return phi;
+        }
+    }
+
+    /// forexpr ::= 'for' identifier '=' expr ',' expr (',' expr)? 'in' expression
+    class ForExprAST : ExprAST
+    {
+        public string VarName { get; set; }
+        public ExprAST Start { get; set; }
+        public ExprAST End { get; set; }
+        public ExprAST Step { get; set; }
+        public ExprAST Body { get; set; }
+
+        public ForExprAST(string varName, ExprAST startExpr, ExprAST endExpr, ExprAST stepExpr, ExprAST bodyExpr)
+        {
+            this.VarName = varName;
+            this.Start = startExpr;
+            this.End = endExpr;
+            this.Step = stepExpr;
+            this.Body = bodyExpr;
+        }
+
+        public override Value CodeGen(IRBuilder builder)
+        {
+            Value startV = this.Start.CodeGen(builder);
+            if(startV == null) return null;
+
+            BasicBlock startBlock = builder.GetInsertPoint();
+            Function func = startBlock.GetParent();
+
+            BasicBlock loopBB = func.AppendBasicBlock("loop");
+            builder.BuildBr(loopBB);
+            builder.SetInsertPoint(loopBB);
+
+            Value variable = builder.BuildPhi(TypeRef.CreateDouble(), this.VarName, new PhiIncoming(startV, startBlock));
+
+            /* Within the loop, the variable is defined equal to the PHI node. If it
+            * shadows an existing variable, we have to restore it, so save it
+            * now. */
+            Value oldVal = null;
+            CodeGenManager.NamedValues.TryGetValue(this.VarName, out oldVal);
+            CodeGenManager.NamedValues[this.VarName] = variable;
+
+            /* Emit the body of the loop.  This, like any other expr, can change the
+            * current BB.  Note that we ignore the value computed by the body, but
+            * don't allow an error */
+            Body.CodeGen(builder);
+
+            // Emit the step value;
+            Value stepV = null;
+
+            if(this.Step != null)
+                stepV = this.Step.CodeGen(builder);
+            else
+                stepV = Value.CreateConstDouble(1);
+
+            Value nextVar = builder.BuildFAdd(variable, stepV, "nextvar");
+
+            // Compute the end condition
+            Value endCond = this.End.CodeGen(builder);
+            endCond = builder.BuildFCmp(endCond, LLVMRealPredicate.RealONE, Value.CreateConstDouble(0), "loopcond");
+
+            BasicBlock loopEndBB = builder.GetInsertPoint();
+            BasicBlock afterBB = func.AppendBasicBlock("afterloop");
+            builder.BuildCondBr(endCond, loopBB, afterBB);
+            builder.SetInsertPoint(afterBB);
+
+            builder.AddPhiIncoming(variable, nextVar, loopEndBB);
+
+            if(oldVal != null)
+                CodeGenManager.NamedValues[this.VarName] = oldVal;
+
+            return Value.CreateConstDouble(0);
         }
     }
 

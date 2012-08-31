@@ -16,22 +16,42 @@ namespace LLVM
 
         public Value BuildFAdd(Value lhs, Value rhs)
         {
-            return new Value(Native.BuildFAdd(m_builder, lhs.Handle, rhs.Handle, "addtmp"));
+            return BuildFAdd(lhs, rhs, "addtmp");
+        }
+
+        public Value BuildFAdd(Value lhs, Value rhs, string varName)
+        {
+            return new Value(Native.BuildFAdd(m_builder, lhs.Handle, rhs.Handle, varName));
         }
 
         public Value BuildFSub(Value lhs, Value rhs)
         {
-            return new Value(Native.BuildFSub(m_builder, lhs.Handle, rhs.Handle, "subtmp"));
+            return BuildFSub(lhs, rhs, "subtmp");
+        }
+
+        public Value BuildFSub(Value lhs, Value rhs, string varName)
+        {
+            return new Value(Native.BuildFSub(m_builder, lhs.Handle, rhs.Handle, varName));
         }
 
         public Value BuildFMul(Value lhs, Value rhs)
         {
-            return new Value(Native.BuildFMul(m_builder, lhs.Handle, rhs.Handle, "multmp"));
+            return BuildFMul(lhs, rhs, "multmp");
+        }
+
+        public Value BuildFMul(Value lhs, Value rhs, string varName)
+        {
+            return new Value(Native.BuildFMul(m_builder, lhs.Handle, rhs.Handle, varName));
         }
 
         public Value BuildFCmp(Value lhs, LLVMRealPredicate predicate, Value rhs)
         {
-            return new Value(Native.BuildFCmp(m_builder, predicate, lhs.Handle, rhs.Handle, "cmptmp"));
+            return BuildFCmp(lhs, predicate, rhs, "cmptmp");
+        }
+
+        public Value BuildFCmp(Value lhs, LLVMRealPredicate predicate, Value rhs, string varName)
+        {
+            return new Value(Native.BuildFCmp(m_builder, predicate, lhs.Handle, rhs.Handle, varName));
         }
 
         public Value BuildFCmpAndPromote(Value lhs, LLVMRealPredicate predicate, Value rhs, TypeRef promoteType)
@@ -62,18 +82,23 @@ namespace LLVM
             return new Value(Native.BuildRet(m_builder, returnValue.Handle));
         }
 
-        public Value BuildPHI(TypeRef type, string name, Value[] incomingValues, BasicBlock[] incomingBlocks)
+        public Value BuildPhi(TypeRef type, string name, PhiIncoming incoming)
         {
-            if(incomingValues.Length != incomingBlocks.Length)
-                throw new InvalidOperationException("Incoming values and blocks must be the same size.");
-
-            IntPtr[] valPointers = LLVMUtilities.MarshallPointerArray(incomingValues);
-            IntPtr[] blockPointers = LLVMUtilities.MarshallPointerArray(incomingBlocks);
+            IntPtr[] valPointers = incoming.GetValuePointers();
+            IntPtr[] blockPointers = incoming.GetBlockPointers();
 
             LLVMValueRef* phi = Native.BuildPhi(m_builder, type.Handle, name);
             Native.AddIncoming(phi, valPointers, blockPointers, (uint)valPointers.Length);
 
             return new Value(phi);
+        }
+
+        public void AddPhiIncoming(Value phiNode, Value value, BasicBlock block)
+        {
+            IntPtr[] valPointers = new IntPtr[] { (IntPtr)value.Handle };
+            IntPtr[] blockPointers = new IntPtr[] { (IntPtr)block.Handle };
+
+            Native.AddIncoming(phiNode.Handle, valPointers, blockPointers, 1);
         }
 
         public void SetInsertPoint(BasicBlock bb)

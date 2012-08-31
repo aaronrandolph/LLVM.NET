@@ -17,7 +17,9 @@ namespace Kaleidoscope.Chapter5
         Number,
         If,
         Then,
-        Else
+        Else,
+        For,
+        In
     }
 
     struct Token
@@ -98,6 +100,10 @@ namespace Kaleidoscope.Chapter5
                         return new Token(TokenCode.Then);
                     case "else":
                         return new Token(TokenCode.Else);
+                    case "for":
+                        return new Token(TokenCode.For);
+                    case "in":
+                        return new Token(TokenCode.In);
                 }
 
                 return new Token(identifier); 

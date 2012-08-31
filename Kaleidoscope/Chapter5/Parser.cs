@@ -157,6 +157,8 @@ namespace Kaleidoscope.Chapter5
                     return ParseNumberExpr();
                 case TokenCode.If:
                     return ParseIfExpr();
+                case TokenCode.For:
+                    return ParseForExpr();
                 case TokenCode.Unknown:
                     switch(m_token.IdentiferText[0])
                     {
@@ -233,6 +235,48 @@ namespace Kaleidoscope.Chapter5
             if(elseExpr == null) return null;
 
             return new IfExprAST(cond, thenExpr, elseExpr);
+        }
+
+        /// forexpr ::= 'for' identifier '=' expr ',' expr (',' expr)? 'in' expression
+        private ExprAST ParseForExpr()
+        {
+            GetNextToken();
+
+            if(m_token.Code != TokenCode.Identifier)
+                return Error("Expected identifier after for.");
+
+            string name = m_token.IdentiferText;
+            GetNextToken();
+
+            if(m_token.Code != TokenCode.Unknown || m_token.IdentiferText != "=")
+                return Error("Expected '=' after for.");
+            GetNextToken();
+
+            ExprAST start = ParseExpression();
+            if(start == null) return null;
+            if(m_token.Code != TokenCode.Unknown || m_token.IdentiferText != ",")
+                return Error("Expected ',' after start value.");
+            GetNextToken();
+
+            ExprAST end = ParseExpression();
+            if(end == null) return null;
+
+            ExprAST step = null;
+            if(m_token.Code == TokenCode.Unknown && m_token.IdentiferText == ",")
+            {
+                GetNextToken();
+                step = ParseExpression();
+                if(step == null) return null;
+            }
+
+            if(m_token.Code != TokenCode.In)
+                return Error("Expected 'in' after for");
+            GetNextToken();
+
+            ExprAST body = ParseExpression();
+            if(body == null) return null;
+
+            return new ForExprAST(name, start, end, step, body);
         }
 
         /// expression

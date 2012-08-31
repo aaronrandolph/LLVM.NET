@@ -47,6 +47,7 @@
     <Compile Include="LLVMUtilities.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="PassManager.cs" />
+    <Compile Include="PhiIncoming.cs" />
     <Compile Include="TargetData.cs" />
     <Compile Include="TypeRef.cs" />
     <Compile Include="Value.cs" />

@@ -9,10 +9,18 @@ namespace LLVM
     {
         public static IntPtr[] MarshallPointerArray<T>(T[] values) where T : IPointerWrapper
         {
-            IntPtr[] valuePointers = new IntPtr[values.Length];
-            for(int i = 0; i < values.Length; ++i)
+            return MarshallPointerArray<T>(values, values.Length);
+        }
+
+        public static IntPtr[] MarshallPointerArray<T>(IEnumerable<T> values, int count) where T : IPointerWrapper
+        {
+            IntPtr[] valuePointers = new IntPtr[count];
+            int i = 0;
+            foreach(T pointer in values)
             {
-                valuePointers[i] = values[i].NativePointer;
+                valuePointers[i++] = pointer.NativePointer;
+                if(i == count)
+                    break;
             }
             return valuePointers;
         }
