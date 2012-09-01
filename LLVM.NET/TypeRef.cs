@@ -5,7 +5,7 @@ using System.Text;
 
 namespace LLVM
 {
-    public unsafe class TypeRef : IPointerWrapper
+    public unsafe struct TypeRef : IPointerWrapper
     {
         private readonly LLVMTypeRef* m_handle;
 

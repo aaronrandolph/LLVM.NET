@@ -80,7 +80,7 @@ namespace LLVM
         {
             LLVMValueRef* p = Native.GetParam(m_handle, index);
             if(p == null)
-                return null;
+                return Value.Null;
 
             return new Value(p);
         }

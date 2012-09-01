@@ -5,7 +5,7 @@ using System.Text;
 
 namespace LLVM
 {
-    public unsafe class BasicBlock : IPointerWrapper
+    public unsafe struct BasicBlock : IPointerWrapper
     {
         private readonly LLVMBasicBlockRef* m_handle;
         private readonly string m_name;

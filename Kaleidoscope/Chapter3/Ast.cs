@@ -41,7 +41,7 @@ namespace Kaleidoscope.Chapter3
 
         public override Value CodeGen(IRBuilder builder)
         {
-            Value value = null;
+            Value value = Value.Null;
 
             if(!CodeGenManager.NamedValues.TryGetValue(this.Name, out value))
                 CodeGenManager.ErrorOutput.WriteLine("Unknown variable name.");
@@ -68,7 +68,7 @@ namespace Kaleidoscope.Chapter3
         {
             Value l = this.LHS.CodeGen(builder);
             Value r = this.RHS.CodeGen(builder);
-            if(l == null || r == null) return null;
+            if(l.IsNull || r.IsNull) return Value.Null;
 
             switch(this.Op)
             {
@@ -84,7 +84,7 @@ namespace Kaleidoscope.Chapter3
             }
 
             CodeGenManager.ErrorOutput.WriteLine("Unknown binary operator.");
-            return null;
+            return Value.Null;
         }
     }
 
@@ -107,22 +107,22 @@ namespace Kaleidoscope.Chapter3
             if(func == null)
             {
                 CodeGenManager.ErrorOutput.WriteLine("Unknown function referenced.");
-                return null;
+                return Value.Null;
             }
 
             // If argument mismatch error.
             if(func.ArgCount != Args.Count)
             {
                 CodeGenManager.ErrorOutput.WriteLine("Incorrect # arguments passed.");
-                return null;
+                return Value.Null;
             }
 
             List<Value> args = new List<Value>();
             foreach(var arg in this.Args)
             {
                 Value val = arg.CodeGen(builder);
-                if(val == null)
-                    return null;
+                if(val.IsNull)
+                    return Value.Null;
 
                 args.Add(val);
             }
@@ -213,7 +213,7 @@ namespace Kaleidoscope.Chapter3
             builder.SetInsertPoint(bb);
             Value retVal = Body.CodeGen(builder);
 
-            if(retVal != null)
+            if(!retVal.IsNull)
             {
                 builder.BuildReturn(retVal);
 

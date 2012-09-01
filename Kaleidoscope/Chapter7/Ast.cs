@@ -42,7 +42,7 @@ namespace Kaleidoscope.Chapter7
 
         public override Value CodeGen(IRBuilder builder)
         {
-            Value value = null;
+            Value value = Value.Null;
 
             if(!CodeGenManager.NamedValues.TryGetValue(this.Name, out value))
                 CodeGenManager.ErrorOutput.WriteLine("Unknown variable name.");
@@ -69,7 +69,7 @@ namespace Kaleidoscope.Chapter7
         {
             Value l = this.LHS.CodeGen(builder);
             Value r = this.RHS.CodeGen(builder);
-            if(l == null || r == null) return null;
+            if(l.IsNull || r.IsNull) return Value.Null;
 
             switch(this.Op)
             {
@@ -110,7 +110,7 @@ namespace Kaleidoscope.Chapter7
         public override Value CodeGen(IRBuilder builder)
         {
             Value operandV = this.Operand.CodeGen(builder);
-            if(operandV == null) return null;
+            if(operandV.IsNull) return operandV;
 
             Function f = CodeGenManager.Module.GetFunction("unary" + this.Op);
             Debug.Assert(f != null);
@@ -139,22 +139,22 @@ namespace Kaleidoscope.Chapter7
             if(func == null)
             {
                 CodeGenManager.ErrorOutput.WriteLine("Unknown function referenced.");
-                return null;
+                return Value.Null;
             }
 
             // If argument mismatch error.
             if(func.ArgCount != Args.Count)
             {
                 CodeGenManager.ErrorOutput.WriteLine("Incorrect # arguments passed.");
-                return null;
+                return Value.Null;
             }
 
             List<Value> args = new List<Value>();
             foreach(var arg in this.Args)
             {
                 Value val = arg.CodeGen(builder);
-                if(val == null)
-                    return null;
+                if(val.IsNull)
+                    return val;
 
                 args.Add(val);
             }
@@ -180,7 +180,7 @@ namespace Kaleidoscope.Chapter7
         public override Value CodeGen(IRBuilder builder)
         {
             Value condV = this.Cond.CodeGen(builder);
-            if(condV == null) return null;
+            if(condV.IsNull) return condV;
 
             condV = builder.BuildFCmp(condV, LLVMRealPredicate.RealONE, 
                                       Value.CreateConstDouble(0));
@@ -192,7 +192,7 @@ namespace Kaleidoscope.Chapter7
             builder.SetInsertPoint(thenBB);
 
             Value thenV = this.Then.CodeGen(builder);
-            if(thenV == null) return null;
+            if(thenV.IsNull) return thenV;
       
             /* Codegen of 'then' can change the current block, update then_bb for the
             * phi. We create a new name because one is used for the phi node, and the
@@ -205,7 +205,7 @@ namespace Kaleidoscope.Chapter7
             builder.SetInsertPoint(elseBB);
 
             Value elseV = this.Else.CodeGen(builder);
-            if(elseV == null) return null;
+            if(elseV.IsNull) return elseV;
 
             // Codegen of 'Else' can change the current block, update ElseBB for the PHI.
             BasicBlock newElseBB = builder.GetInsertPoint();
@@ -281,7 +281,7 @@ namespace Kaleidoscope.Chapter7
             Value alloca = builder.BuildEntryBlockAlloca(func, TypeRef.CreateDouble(), this.VarName);
 
             Value startV = this.Start.CodeGen(builder);
-            if(startV == null) return null;
+            if(startV.IsNull) return startV;
 
             builder.BuildStore(startV, alloca);
 
@@ -292,7 +292,7 @@ namespace Kaleidoscope.Chapter7
             /* Within the loop, the variable is defined equal to the PHI node. If it
             * shadows an existing variable, we have to restore it, so save it
             * now. */
-            Value oldVal = null;
+            Value oldVal = Value.Null;
             CodeGenManager.NamedValues.TryGetValue(this.VarName, out oldVal);
             CodeGenManager.NamedValues[this.VarName] = alloca;
 
@@ -302,7 +302,7 @@ namespace Kaleidoscope.Chapter7
             Body.CodeGen(builder);
 
             // Emit the step value;
-            Value stepV = null;
+            Value stepV = Value.Null;
 
             if(this.Step != null)
                 stepV = this.Step.CodeGen(builder);
@@ -322,7 +322,7 @@ namespace Kaleidoscope.Chapter7
             builder.BuildCondBr(endCond, loopBB, afterBB);
             builder.SetInsertPoint(afterBB);
 
-            if(oldVal != null)
+            if(!oldVal.IsNull)
                 CodeGenManager.NamedValues[this.VarName] = oldVal;
             else
                 CodeGenManager.NamedValues.Remove(this.VarName);
@@ -452,7 +452,7 @@ namespace Kaleidoscope.Chapter7
 
             Value retVal = Body.CodeGen(builder);
 
-            if(retVal != null)
+            if(!retVal.IsNull)
             {
                 builder.BuildReturn(retVal);
 
