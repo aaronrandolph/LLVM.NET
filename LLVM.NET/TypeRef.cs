@@ -7,6 +7,8 @@ namespace LLVM
 {
     public unsafe struct TypeRef : IPointerWrapper
     {
+        public static readonly TypeRef Null = new TypeRef();
+
         private readonly LLVMTypeRef* m_handle;
 
         public TypeRef(LLVMTypeRef* handle)
@@ -20,6 +22,11 @@ namespace LLVM
         public LLVMTypeRef* Handle
         {
             get { return m_handle; }
+        }
+
+        public bool IsNull
+        {
+            get { return m_handle == null; }
         }
 
         public static TypeRef CreateBool()
