@@ -5,13 +5,28 @@ using System.Text;
 
 namespace LLVM
 {
-    public unsafe class IRBuilder
+    public unsafe class IRBuilder : IDisposable, IPointerWrapper
     {
-        private readonly LLVMBuilderRef* m_builder;
+        private LLVMBuilderRef* m_builder;
 
         public IRBuilder()
         {
             m_builder = Native.CreateBuilder();
+        }
+
+        ~IRBuilder()
+        {
+            Dispose(false);
+        }
+
+        public Value BuildAdd(Value lhs, Value rhs)
+        {
+            return BuildAdd(lhs, rhs, "addtmp");
+        }
+
+        public Value BuildAdd(Value lhs, Value rhs, string varName)
+        {
+            return new Value(Native.BuildAdd(m_builder, lhs.Handle, rhs.Handle, varName));
         }
 
         public Value BuildFAdd(Value lhs, Value rhs)
@@ -24,6 +39,16 @@ namespace LLVM
             return new Value(Native.BuildFAdd(m_builder, lhs.Handle, rhs.Handle, varName));
         }
 
+        public Value BuildSub(Value lhs, Value rhs)
+        {
+            return BuildSub(lhs, rhs, "subtmp");
+        }
+
+        public Value BuildSub(Value lhs, Value rhs, string varName)
+        {
+            return new Value(Native.BuildSub(m_builder, lhs.Handle, rhs.Handle, varName));
+        }
+
         public Value BuildFSub(Value lhs, Value rhs)
         {
             return BuildFSub(lhs, rhs, "subtmp");
@@ -34,6 +59,16 @@ namespace LLVM
             return new Value(Native.BuildFSub(m_builder, lhs.Handle, rhs.Handle, varName));
         }
 
+        public Value BuildMul(Value lhs, Value rhs)
+        {
+            return BuildMul(lhs, rhs, "multmp");
+        }
+
+        public Value BuildMul(Value lhs, Value rhs, string varName)
+        {
+            return new Value(Native.BuildMul(m_builder, lhs.Handle, rhs.Handle, varName));
+        }
+
         public Value BuildFMul(Value lhs, Value rhs)
         {
             return BuildFMul(lhs, rhs, "multmp");
@@ -42,6 +77,16 @@ namespace LLVM
         public Value BuildFMul(Value lhs, Value rhs, string varName)
         {
             return new Value(Native.BuildFMul(m_builder, lhs.Handle, rhs.Handle, varName));
+        }
+
+        public Value BuildICmp(Value lhs, LLVMIntPredicate predicate, Value rhs)
+        {
+            return BuildICmp(lhs, predicate, rhs, "cmptmp");
+        }
+
+        public Value BuildICmp(Value lhs, LLVMIntPredicate predicate, Value rhs, string varName)
+        {
+            return new Value(Native.BuildICmp(m_builder, predicate, lhs.Handle, rhs.Handle, varName));
         }
 
         public Value BuildFCmp(Value lhs, LLVMRealPredicate predicate, Value rhs)
@@ -103,9 +148,20 @@ namespace LLVM
             return new Value(alloca);
         }
 
+        public Value BuildReturn()
+        {
+            return new Value(Native.BuildRetVoid(m_builder));
+        }
+
         public Value BuildReturn(Value returnValue)
         {
             return new Value(Native.BuildRet(m_builder, returnValue.Handle));
+        }
+
+        public Value BuildReturn(IEnumerable<Value> returnValues)
+        {
+            IntPtr[] retVals = LLVMHelper.MarshallPointerArray(returnValues);
+            return new Value(Native.BuildAggregateRet(m_builder, retVals, (uint)retVals.Length));
         }
 
         public Value BuildPhi(TypeRef type, string name, PhiIncoming incoming)
@@ -136,5 +192,38 @@ namespace LLVM
         {
             return new BasicBlock(null, Native.GetInsertBlock(m_builder));
         }
+
+        public void ClearInsertPoint()
+        {
+            Native.ClearInsertionPosition(m_builder);
+        }
+
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        public void Dispose(bool disposing)
+        {
+            if(m_builder != null)
+            {
+                Native.DisposeBuilder(m_builder);
+                m_builder = null;
+            }
+        }
+
+        #endregion
+
+        #region IPointerWrapper Members
+
+        IntPtr IPointerWrapper.NativePointer
+        {
+            get { return (IntPtr)m_builder; }
+        }
+
+        #endregion
     }
 }

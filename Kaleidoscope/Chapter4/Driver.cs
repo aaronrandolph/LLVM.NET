@@ -25,9 +25,9 @@ namespace Kaleidoscope.Chapter4
             Lexer lexer = new Lexer(Console.In);
             m_parser = new Parser(lexer);
             using(LLVM.Module module = new LLVM.Module("my cool jit"))
+            using(m_builder = new LLVM.IRBuilder())
             {
                 CodeGenManager.Module = module;
-                m_builder = new LLVM.IRBuilder();
                 m_engine = new LLVM.ExecutionEngine(module);
                 m_passMgr = new LLVM.PassManager(module);
                 m_passMgr.AddTargetData(m_engine.GetTargetData());

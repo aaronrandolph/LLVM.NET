@@ -43,7 +43,13 @@ namespace LLVM
 
         public static string GetName(LLVMValueRef* value)
         {
+            if(value == null)
+                throw new ArgumentNullException("value");
+
             IntPtr name = Native.GetValueName(value);
+            if(name == null)
+                return null;
+
             return System.Runtime.InteropServices.Marshal.PtrToStringAnsi(name);
         }
 
