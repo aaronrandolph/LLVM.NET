@@ -421,7 +421,7 @@ namespace Kaleidoscope.Chapter6
                 builder.BuildReturn(retVal);
 
                 // Validate the generated code, checking for consistency.
-                func.Validate();
+                func.Validate(LLVMVerifierFailureAction.PrintMessageAction);
 
                 // Optimize the function.
                 passManager.Run(func);

@@ -38,21 +38,17 @@ namespace LLVM
             m_returnType = new TypeRef(Native.GetReturnType(m_funcType));
 
             uint paramCount = Native.CountParamTypes(m_funcType);
+            m_paramTypes = new TypeRef[paramCount];
 
             if(paramCount > 0)
             {
                 IntPtr[] types = new IntPtr[paramCount];
                 Native.GetParamTypes(m_funcType, types);
 
-                m_paramTypes = new TypeRef[paramCount];
                 for(int i = 0; i < paramCount; ++i)
                 {
                     m_paramTypes[i] = new TypeRef((LLVMTypeRef*)types[i]);
                 }
-            }
-            else
-            {
-                m_paramTypes = new TypeRef[0];
             }
         }
 
@@ -111,9 +107,9 @@ namespace LLVM
             return block;
         }
 
-        public bool Validate()
+        public bool Validate(LLVMVerifierFailureAction failureAction)
         {
-            return Native.VerifyFunction(m_handle, LLVMVerifierFailureAction.PrintMessageAction) != 0;
+            return Native.VerifyFunction(m_handle, failureAction) != 0;
         }
 
         public void Dump()
