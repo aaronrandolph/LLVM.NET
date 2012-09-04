@@ -31,12 +31,12 @@ namespace LLVM
 
         public IntPtr[] GetValuePointers()
         {
-            return LLVMUtilities.MarshallPointerArray(m_incomingVals, m_incomingVals.Count);
+            return LLVMHelper.MarshallPointerArray(m_incomingVals);
         }
 
         public IntPtr[] GetBlockPointers()
         {
-            return LLVMUtilities.MarshallPointerArray(m_incomingBlocks, m_incomingBlocks.Count);
+            return LLVMHelper.MarshallPointerArray(m_incomingBlocks);
         }
     }
 }

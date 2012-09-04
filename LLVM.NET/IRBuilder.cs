@@ -77,7 +77,7 @@ namespace LLVM
 
         public Value BuildCall(Function func, Value[] args, string varName)
         {
-            IntPtr[] argVals = LLVMUtilities.MarshallPointerArray(args);
+            IntPtr[] argVals = LLVMHelper.MarshallPointerArray(args);
 
             return new Value(Native.BuildCall(m_builder, func.Handle, argVals, (uint)args.Length, varName));
         }

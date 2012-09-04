@@ -44,7 +44,7 @@
     <Compile Include="IPointerWrapper.cs" />
     <Compile Include="IRBuilder.cs" />
     <Compile Include="Function.cs" />
-    <Compile Include="LLVMUtilities.cs" />
+    <Compile Include="LLVMHelper.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="PassManager.cs" />
     <Compile Include="PhiIncoming.cs" />

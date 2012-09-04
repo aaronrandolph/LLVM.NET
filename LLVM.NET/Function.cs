@@ -19,7 +19,7 @@ namespace LLVM
             m_returnType = returnType;
             m_paramTypes = paramTypes;
 
-            IntPtr[] paramArray = LLVMUtilities.MarshallPointerArray(paramTypes);
+            IntPtr[] paramArray = LLVMHelper.MarshallPointerArray(paramTypes);
 
             m_funcType = Native.FunctionType(returnType.Handle, paramArray, (uint)paramArray.Length, 0);
             m_handle = Native.AddFunction(module.Handle, name, m_funcType);
