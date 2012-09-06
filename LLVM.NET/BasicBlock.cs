@@ -43,7 +43,7 @@ namespace LLVM
 
         public bool IsUsed
         {
-            get { return Value.IsUsed((LLVMValueRef*)m_handle); }
+            get { return Value.Used((LLVMValueRef*)m_handle); }
         }
 
         public Value GetTerminator()

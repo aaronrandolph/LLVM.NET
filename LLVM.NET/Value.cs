@@ -31,7 +31,7 @@ namespace LLVM
 
         public bool IsUsed
         {
-            get { return IsUsed(m_handle); }
+            get { return Used(m_handle); }
         }
 
         public string Name
@@ -46,7 +46,7 @@ namespace LLVM
             }
         }
 
-        public static bool IsUsed(LLVMValueRef* value)
+        public static bool Used(LLVMValueRef* value)
         {
             if(value == null)
                 throw new ArgumentNullException("value");
