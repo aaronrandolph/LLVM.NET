@@ -5,9 +5,9 @@ using System.Text;
 
 namespace LLVM
 {
-    public unsafe struct BasicBlock : IPointerWrapper
+    public unsafe class BasicBlock : IPointerWrapper
     {
-        private readonly LLVMBasicBlockRef* m_handle;
+        private LLVMBasicBlockRef* m_handle;
         private readonly string m_name;
 
         public BasicBlock(string name, LLVMBasicBlockRef* handle)
@@ -41,9 +41,59 @@ namespace LLVM
             get { return m_name; }
         }
 
+        public bool IsUsed
+        {
+            get { return Value.IsUsed((LLVMValueRef*)m_handle); }
+        }
+
+        public Value GetTerminator()
+        {
+            LLVMValueRef* term = Native.GetBasicBlockTerminator(m_handle);
+            if(term == null)
+                return Value.Null;
+
+            return new Value(term);
+        }
+
+        public void MoveBefore(BasicBlock block)
+        {
+            Guard.ArgumentNull(block, "block");
+            Native.MoveBasicBlockBefore(m_handle, block.m_handle);
+        }
+
+        public void MoveAfter(BasicBlock block)
+        {
+            Guard.ArgumentNull(block, "block");
+            Native.MoveBasicBlockAfter(m_handle, block.m_handle);
+        }
+
+        public void Delete()
+        {
+            if(m_handle == null)
+                throw new InvalidOperationException("BasicBlock is null");
+
+            Native.DeleteBasicBlock(m_handle);
+            m_handle = null;
+        }
+
+        public void RemoveFromParent()
+        {
+            if(m_handle == null)
+                throw new InvalidOperationException("BasicBlock is null");
+
+            Native.RemoveBasicBlockFromParent(m_handle);
+        }
+
         public Function GetParent()
         {
-            return new Function(Native.GetBasicBlockParent(m_handle));
+            if(m_handle == null)
+                throw new InvalidOperationException("BasicBlock is null");
+
+            LLVMValueRef* func = Native.GetBasicBlockParent(m_handle);
+            if(func == null)
+                return null;
+
+            return new Function(func);
         }
 
         #region IPointerWrapper Members

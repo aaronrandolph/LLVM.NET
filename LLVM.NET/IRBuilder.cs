@@ -190,7 +190,11 @@ namespace LLVM
 
         public BasicBlock GetInsertPoint()
         {
-            return new BasicBlock(null, Native.GetInsertBlock(m_builder));
+            LLVMBasicBlockRef* bb = Native.GetInsertBlock(m_builder);
+            if(bb == null)
+                return null;
+
+            return new BasicBlock(null, bb);
         }
 
         public void ClearInsertPoint()

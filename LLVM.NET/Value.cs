@@ -29,6 +29,11 @@ namespace LLVM
             get { return m_handle == null; }
         }
 
+        public bool IsUsed
+        {
+            get { return IsUsed(m_handle); }
+        }
+
         public string Name
         {
             get
@@ -39,6 +44,31 @@ namespace LLVM
             {
                 Native.SetValueName(m_handle, value);
             }
+        }
+
+        public static bool IsUsed(LLVMValueRef* value)
+        {
+            if(value == null)
+                throw new ArgumentNullException("value");
+
+            return Native.GetFirstUse(value) != null;
+        }
+
+        public static int GetUseCount(LLVMValueRef* value)
+        {
+            if(value == null)
+                throw new ArgumentNullException("value");
+
+            LLVMUseRef* use = Native.GetFirstUse(value);
+            int count = 0;
+
+            while(use != null)
+            {
+                count++;
+                use = Native.GetNextUse(use);
+            }
+
+            return count;
         }
 
         public static string GetName(LLVMValueRef* value)
@@ -53,9 +83,19 @@ namespace LLVM
             return System.Runtime.InteropServices.Marshal.PtrToStringAnsi(name);
         }
 
+        public static Value CreateConstBool(bool value)
+        {
+            return new Value(Native.ConstInt(TypeRef.CreateBool().Handle, (ulong)(value ? 1 : 0), 0));
+        }
+
         public static Value CreateConstInt(TypeRef type, long value)
         {
             return new Value(Native.ConstInt(type.Handle, (ulong)value, 1));
+        }
+
+        public static Value CreateConstInt8(sbyte value)
+        {
+            return new Value(Native.ConstInt(TypeRef.CreateInt8().Handle, (ulong)value, 1));
         }
 
         public static Value CreateConstInt16(short value)
@@ -76,6 +116,11 @@ namespace LLVM
         public static Value CreateConstUInt(TypeRef type, ulong value)
         {
             return new Value(Native.ConstInt(type.Handle, value, 0));
+        }
+
+        public static Value CreateConstUInt8(byte value)
+        {
+            return new Value(Native.ConstInt(TypeRef.CreateInt8().Handle, value, 0));
         }
 
         public static Value CreateConstUInt16(ushort value)

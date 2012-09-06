@@ -13,6 +13,35 @@ namespace LLVM
         private readonly TypeRef m_returnType;
         private readonly TypeRef[] m_paramTypes;
 
+        /// <summary>
+        /// Create a void function that takes no arguments
+        /// </summary>
+        /// <param name="module"></param>
+        /// <param name="name"></param>
+        /// <param name="returnType"></param>
+        public Function(Module module, string name)
+            : this(module, name, TypeRef.CreateVoid(), new TypeRef[0])
+        {
+        }
+
+        /// <summary>
+        /// Create a function that takes no arguments
+        /// </summary>
+        /// <param name="module"></param>
+        /// <param name="name"></param>
+        /// <param name="returnType"></param>
+        public Function(Module module, string name, TypeRef returnType)
+            : this(module, name, returnType, new TypeRef[0])
+        {
+        }
+
+        /// <summary>
+        /// Create a function with arguments and a return type.
+        /// </summary>
+        /// <param name="module"></param>
+        /// <param name="name"></param>
+        /// <param name="returnType"></param>
+        /// <param name="paramTypes"></param>
         public Function(Module module, string name, TypeRef returnType, TypeRef[] paramTypes)
         {
             m_name = name;

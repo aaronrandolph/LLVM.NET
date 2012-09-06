@@ -24,9 +24,28 @@ namespace LLVM
             get { return m_handle; }
         }
 
+        public LLVMTypeKind TypeKind
+        {
+            get 
+            {
+                if(m_handle == null)
+                    throw new InvalidOperationException("TypeRef is null");
+
+                return Native.GetTypeKind(m_handle); 
+            }
+        }
+
         public bool IsNull
         {
             get { return m_handle == null; }
+        }
+
+        public Value CreateNullValue()
+        {
+            if(m_handle == null)
+                throw new InvalidOperationException("TypeRef is null");
+
+            return new Value(Native.ConstNull(m_handle));
         }
 
         public static TypeRef CreateBool()
@@ -62,6 +81,17 @@ namespace LLVM
         public static TypeRef CreateDouble()
         {
             return new TypeRef(Native.DoubleType());
+        }
+
+        public static TypeRef CreateVoid()
+        {
+            return new TypeRef(Native.VoidType());
+        }
+
+        public static TypeRef CreatePointer(TargetData target)
+        {
+            Guard.ArgumentNull(target, "target");
+            return new TypeRef(Native.IntPtrType(target.Handle));
         }
 
         #region IPointerWrapper Members

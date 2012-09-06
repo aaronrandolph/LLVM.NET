@@ -9,6 +9,9 @@ namespace LLVM
     {
         public static IntPtr[] MarshallPointerArray<T>(IEnumerable<T> values) where T : IPointerWrapper
         {
+            if(values == null)
+                return new IntPtr[0];
+
             return values.Select(pw => pw.NativePointer).ToArray();
         }
     }
