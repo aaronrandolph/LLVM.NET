@@ -115,16 +115,16 @@ namespace LLVM
             return new Value(Native.BuildBr(m_builder, branchBlock.Handle));
         }
 
-        public Value BuildCall(Function func, Value[] args)
+        public Value BuildCall(Function func, IEnumerable<Value> args)
         {
             return BuildCall(func, args, "calltmp");
         }
 
-        public Value BuildCall(Function func, Value[] args, string varName)
+        public Value BuildCall(Function func, IEnumerable<Value> args, string varName)
         {
             IntPtr[] argVals = LLVMHelper.MarshallPointerArray(args);
 
-            return new Value(Native.BuildCall(m_builder, func.Handle, argVals, (uint)args.Length, varName));
+            return new Value(Native.BuildCall(m_builder, func.Handle, argVals, (uint)argVals.Length, varName));
         }
 
         public Value BuildLoad(Value value, string varName)
