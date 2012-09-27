@@ -5,6 +5,11 @@ using System.Text;
 
 namespace LLVM
 {
+    public static class Targets
+    {
+        public const string Win32TargetTriple = "i686-pc-win32";
+    }
+
     public unsafe class TargetData : IDisposable, IPointerWrapper
     {
         private LLVMTargetDataRef* m_handle;
@@ -24,6 +29,15 @@ namespace LLVM
         public LLVMTargetDataRef* Handle
         {
             get { return m_handle; }
+        }
+
+        public static TargetData Create(string triple)
+        {
+            LLVMTargetDataRef* handle = Native.CreateTargetData(triple);
+            if(handle == null)
+                return null;
+
+            return new TargetData(handle, true);
         }
 
         #region IDisposable Members
