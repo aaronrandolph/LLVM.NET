@@ -73,8 +73,11 @@ namespace Kaleidoscope.Chapter7
 
         public Token GetToken()
         {
-            if(m_bEof || !AdvanceReader())
+            if (m_bEof || !AdvanceReader())
+            {
+                m_bEof = false;
                 return new Token(TokenCode.Eof);
+            }
 
             char ch = m_line[m_position];
 

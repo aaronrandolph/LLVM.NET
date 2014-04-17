@@ -44,8 +44,9 @@ namespace Kaleidoscope.Chapter4
                     switch(m_parser.GetNextToken())
                     {
                         case TokenCode.Eof:
-                            module.Dump();
-                            return;
+                            // Continnue and consume new commands
+                            // module.Dump();
+                            break;
 
                         case TokenCode.Def:
                             HandleDefinition();
