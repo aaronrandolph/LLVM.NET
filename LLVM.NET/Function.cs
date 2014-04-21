@@ -10,9 +10,11 @@ namespace LLVM
         private readonly LLVMTypeRef* m_funcType;
         private readonly string m_name;
 
-        public readonly TypeRef ReturnType;
+        private readonly TypeRef m_returnType;
+        public TypeRef   ReturnType { get { return m_returnType; } }
 
-        public readonly TypeRef[] RaramTypes;
+        private readonly TypeRef[] m_paramTypes;
+        public TypeRef[] ParamTypes { get { return m_paramTypes; } }
 
         /// <summary>
         /// Create a void function that takes no arguments
@@ -46,8 +48,8 @@ namespace LLVM
         public Function(Module module, string name, TypeRef returnType, TypeRef[] paramTypes)
         {
             m_name = name;
-            ReturnType = returnType;
-            RaramTypes = paramTypes;
+            m_returnType = returnType;
+            m_paramTypes = paramTypes;
 
             IntPtr[] paramArray = LLVMHelper.MarshallPointerArray(paramTypes);
 
@@ -65,10 +67,10 @@ namespace LLVM
             m_name = name;
             m_handle = handle;
             m_funcType = Native.GetElementType(Native.TypeOf(handle));
-            ReturnType = new TypeRef(Native.GetReturnType(m_funcType));
+            m_returnType = new TypeRef(Native.GetReturnType(m_funcType));
 
             uint paramCount = Native.CountParamTypes(m_funcType);
-            RaramTypes = new TypeRef[paramCount];
+            m_paramTypes = new TypeRef[paramCount];
 
             if(paramCount > 0)
             {
@@ -77,7 +79,7 @@ namespace LLVM
 
                 for(int i = 0; i < paramCount; ++i)
                 {
-                    RaramTypes[i] = new TypeRef((LLVMTypeRef*)types[i]);
+                    m_paramTypes[i] = new TypeRef((LLVMTypeRef*)types[i]);
                 }
             }
         }
@@ -98,7 +100,7 @@ namespace LLVM
 
         public int ArgCount
         {
-            get { return RaramTypes.Length; }
+            get { return ParamTypes.Length; }
         }
 
         public bool HasBody

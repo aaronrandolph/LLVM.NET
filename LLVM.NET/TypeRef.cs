@@ -11,15 +11,16 @@ namespace LLVM
 
         private readonly LLVMTypeRef* m_handle;
 
-        public LLVMTypeRef* pointedType;
+		private readonly LLVMTypeRef* m_pointedType;
+		public LLVMTypeRef* PointedType { get { return m_pointedType; } }
 
-        public TypeRef(LLVMTypeRef* handle)
+        public TypeRef(LLVMTypeRef* handle, LLVMTypeRef* pointed = null)
         {
             if(handle == null)
                 throw new ArgumentNullException("handle");
 
             m_handle = handle;
-            pointedType = null;
+			m_pointedType = pointed;
         }
 
         public LLVMTypeRef* Handle
@@ -47,7 +48,7 @@ namespace LLVM
         {
             string ret = type.TypeKind.ToString();
             if (type.TypeKind == LLVMTypeKind.PointerTypeKind)
-                ret += " to " + Native.GetTypeKind(type.pointedType).ToString();
+                ret += " to " + Native.GetTypeKind(type.PointedType).ToString();
             return ret;
         }
 
@@ -105,9 +106,7 @@ namespace LLVM
         public static TypeRef CreatePointer(TypeRef target)
         {
             Guard.ArgumentNull(target, "target");
-            TypeRef var = new TypeRef(Native.PointerType(target.Handle, 0));
-            var.pointedType = target.Handle;
-            return var;
+            return new TypeRef(Native.PointerType(target.Handle, 0), target.Handle);
         }
 
         #endregion

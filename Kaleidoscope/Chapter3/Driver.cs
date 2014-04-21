@@ -53,8 +53,6 @@ namespace Kaleidoscope.Chapter3
                             break;
                     }
                 }
-
-                module.Dump();
             }
         }
 
