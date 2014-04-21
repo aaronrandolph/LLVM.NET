@@ -11,8 +11,8 @@ namespace LLVM
 
         private readonly LLVMTypeRef* m_handle;
 
-		private readonly LLVMTypeRef* m_pointedType;
-		public LLVMTypeRef* PointedType { get { return m_pointedType; } }
+        private readonly LLVMTypeRef* m_pointedType;
+        public LLVMTypeRef* PointedType { get { return m_pointedType; } }
 
         public TypeRef(LLVMTypeRef* handle, LLVMTypeRef* pointed = null)
         {
@@ -20,7 +20,7 @@ namespace LLVM
                 throw new ArgumentNullException("handle");
 
             m_handle = handle;
-			m_pointedType = pointed;
+            m_pointedType = pointed;
         }
 
         public LLVMTypeRef* Handle
