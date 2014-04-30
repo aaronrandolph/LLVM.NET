@@ -33,8 +33,9 @@ namespace Kaleidoscope.Chapter3
                     switch(m_parser.GetNextToken())
                     {
                         case TokenCode.Eof:
-                            module.Dump();
-                            return;
+                            // Continnue and consume new commands
+                            // module.Dump();
+                            break;
 
                         case TokenCode.Def:
                             HandleDefinition();
@@ -52,8 +53,6 @@ namespace Kaleidoscope.Chapter3
                             break;
                     }
                 }
-
-                module.Dump();
             }
         }
 

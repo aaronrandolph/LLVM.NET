@@ -5,13 +5,16 @@ using System.Text;
 
 namespace LLVM
 {
-    public unsafe class Function : IPointerWrapper
+    public unsafe class Function : Value
     {
         private readonly LLVMTypeRef* m_funcType;
-        private readonly LLVMValueRef* m_handle;
         private readonly string m_name;
+
         private readonly TypeRef m_returnType;
+        public TypeRef   ReturnType { get { return m_returnType; } }
+
         private readonly TypeRef[] m_paramTypes;
+        public TypeRef[] ParamTypes { get { return m_paramTypes; } }
 
         /// <summary>
         /// Create a void function that takes no arguments
@@ -81,9 +84,13 @@ namespace LLVM
             }
         }
 
-        public LLVMValueRef* Handle
+
+        public override string Name
         {
-            get { return m_handle; }
+            get
+            {
+                return m_name;
+            }
         }
 
         public LLVMTypeRef* FunctionType
@@ -93,7 +100,7 @@ namespace LLVM
 
         public int ArgCount
         {
-            get { return m_paramTypes.Length; }
+            get { return ParamTypes.Length; }
         }
 
         public bool HasBody
@@ -132,7 +139,7 @@ namespace LLVM
 
         public BasicBlock AppendBasicBlock(BasicBlock block)
         {
-            Native.MoveBasicBlockAfter(block.Handle, Native.GetLastBasicBlock(m_handle));
+            Native.MoveBasicBlockAfter(block.BBHandle, Native.GetLastBasicBlock(m_handle));
             return block;
         }
 
@@ -145,14 +152,5 @@ namespace LLVM
         {
             Native.DumpValue(m_handle);
         }
-
-        #region IPointerWrapper Members
-
-        IntPtr IPointerWrapper.NativePointer
-        {
-            get { return (IntPtr)m_handle; }
-        }
-
-        #endregion
     }
 }

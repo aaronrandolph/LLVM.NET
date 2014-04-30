@@ -5,21 +5,14 @@ using System.Text;
 
 namespace LLVM
 {
-    public unsafe class BasicBlock : IPointerWrapper
+    public unsafe class BasicBlock : Value
     {
-        private LLVMBasicBlockRef* m_handle;
         private readonly string m_name;
 
         public BasicBlock(string name, LLVMBasicBlockRef* handle)
+            : base((LLVMValueRef*) handle)
         {
-            if(handle == null)
-                throw new ArgumentNullException("handle");
-
-            if(name == null)
-                name = Value.GetName((LLVMValueRef*)handle);
-
-            m_handle = handle;
-            m_name = name;
+            m_name = name;  // base.name, calls LLVM API to fetch Value name
         }
 
         public BasicBlock(string name, Function function)
@@ -27,28 +20,28 @@ namespace LLVM
             Guard.ArgumentNull(name, "name");
             Guard.ArgumentNull(function, "function");
 
-            m_handle = Native.AppendBasicBlock(function.Handle, name);
+            m_handle = (LLVMValueRef*) Native.AppendBasicBlock(function.Handle, name);
             m_name = name;
         }
 
-        public LLVMBasicBlockRef* Handle
+        public LLVMBasicBlockRef* BBHandle
         {
-            get { return m_handle; }
+            get { return (LLVMBasicBlockRef*) m_handle; }
         }
 
-        public string Name
+        public override bool IsNull
+        {
+            get { return m_handle == null; }
+        }
+
+        public override string Name
         {
             get { return m_name; }
         }
 
-        public bool IsUsed
-        {
-            get { return Value.Used((LLVMValueRef*)m_handle); }
-        }
-
         public Value GetTerminator()
         {
-            LLVMValueRef* term = Native.GetBasicBlockTerminator(m_handle);
+            LLVMValueRef* term = Native.GetBasicBlockTerminator(BBHandle);
             if(term == null)
                 return Value.Null;
 
@@ -58,51 +51,43 @@ namespace LLVM
         public void MoveBefore(BasicBlock block)
         {
             Guard.ArgumentNull(block, "block");
-            Native.MoveBasicBlockBefore(m_handle, block.m_handle);
+            Native.MoveBasicBlockBefore(BBHandle, block.BBHandle);
         }
 
         public void MoveAfter(BasicBlock block)
         {
             Guard.ArgumentNull(block, "block");
-            Native.MoveBasicBlockAfter(m_handle, block.m_handle);
+            Native.MoveBasicBlockAfter(BBHandle, block.BBHandle);
         }
 
         public void Delete()
         {
-            if(m_handle == null)
+            if(BBHandle == null)
                 throw new InvalidOperationException("BasicBlock is null");
 
-            Native.DeleteBasicBlock(m_handle);
+            Native.DeleteBasicBlock(BBHandle);
             m_handle = null;
         }
 
         public void RemoveFromParent()
         {
-            if(m_handle == null)
+            if(BBHandle == null)
                 throw new InvalidOperationException("BasicBlock is null");
 
-            Native.RemoveBasicBlockFromParent(m_handle);
+            Native.RemoveBasicBlockFromParent(BBHandle);
         }
 
         public Function GetParent()
         {
-            if(m_handle == null)
+            if(BBHandle == null)
                 throw new InvalidOperationException("BasicBlock is null");
 
-            LLVMValueRef* func = Native.GetBasicBlockParent(m_handle);
+            LLVMValueRef* func = Native.GetBasicBlockParent(BBHandle);
             if(func == null)
                 return null;
 
             return new Function(func);
         }
 
-        #region IPointerWrapper Members
-
-        IntPtr IPointerWrapper.NativePointer
-        {
-            get { return (IntPtr)m_handle; }
-        }
-
-        #endregion
     }
 }

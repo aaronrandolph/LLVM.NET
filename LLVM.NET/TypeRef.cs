@@ -11,12 +11,16 @@ namespace LLVM
 
         private readonly LLVMTypeRef* m_handle;
 
-        public TypeRef(LLVMTypeRef* handle)
+        private readonly LLVMTypeRef* m_pointedType;
+        public LLVMTypeRef* PointedType { get { return m_pointedType; } }
+
+        public TypeRef(LLVMTypeRef* handle, LLVMTypeRef* pointed = null)
         {
             if(handle == null)
                 throw new ArgumentNullException("handle");
 
             m_handle = handle;
+            m_pointedType = pointed;
         }
 
         public LLVMTypeRef* Handle
@@ -39,6 +43,17 @@ namespace LLVM
         {
             get { return m_handle == null; }
         }
+
+        public static String Tostring(TypeRef type)
+        {
+            string ret = type.TypeKind.ToString();
+            if (type.TypeKind == LLVMTypeKind.PointerTypeKind)
+                ret += " to " + Native.GetTypeKind(type.PointedType).ToString();
+            return ret;
+        }
+
+
+        #region Construction of types
 
         public Value CreateNullValue()
         {
@@ -88,11 +103,14 @@ namespace LLVM
             return new TypeRef(Native.VoidType());
         }
 
-        public static TypeRef CreatePointer(TargetData target)
+        public static TypeRef CreatePointer(TypeRef target)
         {
             Guard.ArgumentNull(target, "target");
-            return new TypeRef(Native.IntPtrType(target.Handle));
+            return new TypeRef(Native.PointerType(target.Handle, 0), target.Handle);
         }
+
+        #endregion
+
 
         #region IPointerWrapper Members
 
